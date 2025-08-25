@@ -57,7 +57,7 @@ export default function Home() {
             and optimize your content for YouTube success.
           </p>
           <Link
-            href="/dashboard"
+            href="/sign-up"
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-lg text-lg transition-colors duration-200 inline-block"
           >
             Get Started for Free
@@ -140,7 +140,7 @@ export default function Home() {
                 </li>
               </ul>
               <Link
-                href="/dashboard"
+                href="/sign-up"
                 className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-3 px-6 rounded-lg transition-colors duration-200 text-center block"
               >
                 Get Started Free
@@ -192,7 +192,7 @@ export default function Home() {
                 </li>
               </ul>
               <Link
-                href="/dashboard"
+                href="/sign-up"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 text-center block"
               >
                 Start Pro Trial
@@ -212,7 +212,7 @@ export default function Home() {
             Join thousands of creators who are already using CreatorML to grow their YouTube channels faster.
           </p>
           <Link
-            href="/dashboard"
+            href="/sign-up"
             className="bg-white hover:bg-gray-100 text-blue-600 font-semibold py-4 px-8 rounded-lg text-lg transition-colors duration-200 inline-block"
           >
             Get Started for Free
