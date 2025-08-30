@@ -1,7 +1,14 @@
+import { ProjectType } from '@/types';
 import Link from 'next/link';
 
-export default function ProjectCard({ project }) {
-    const formatDate = (dateString) => {
+export default function ProjectCard({ project }: {
+    project: {
+        _id: string;
+        title: string;
+        updatedAt: string;
+    }
+}) {
+    const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', {
             year: 'numeric',
@@ -11,7 +18,7 @@ export default function ProjectCard({ project }) {
     };
 
     return (
-        <Link href={`/project/${project.id}`}>
+        <Link href={`/project/${project._id}`}>
             <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg hover:border-blue-300 transition-all duration-200 cursor-pointer group">
                 <div className="flex flex-col h-full">
                     <h3 className="text-lg font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors duration-200">
@@ -20,7 +27,7 @@ export default function ProjectCard({ project }) {
 
                     <div className="mt-auto">
                         <p className="text-sm text-gray-500">
-                            Last updated: {formatDate(project.lastUpdated)}
+                            Last updated: {formatDate(project.updatedAt)}
                         </p>
                     </div>
 
