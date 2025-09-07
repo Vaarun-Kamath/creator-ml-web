@@ -1,93 +1,60 @@
-'use client';
-
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { getProjectById } from '../../services/projectService';
 import { ProjectType } from '@/types';
-import { use } from 'react';
-import { features } from '@/constants/Features';
+import KeywordResearch from '../../../components/KeywordResearch';
 
 interface ProjectPageProps {
-    params: Promise<{ projectId: string }>;
+    params: { projectId: string };
 }
 
-export default function ProjectPage({ params }: ProjectPageProps) {
-    const { projectId } = use(params);
-    const [project, setProject] = useState<ProjectType | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+// Server-side function to fetch project data
+async function getProject(projectId: string): Promise<ProjectType | null> {
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    const userId = 'User1'; // Mock userId - in a real app, this would come from authentication
 
-    // For now, using a mock userId - in a real app, this would come from authentication
-    const userId = 'User1';
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}`, {
+            method: 'GET',
+            headers: {
+                'x-user-id': userId,
+            },
+            cache: 'no-store', // Always fetch fresh data
+        });
 
-    useEffect(() => {
-        const fetchProject = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const projectData = await getProjectById(projectId, userId);
-                setProject(projectData);
-            } catch (err: any) {
-                console.error('Error fetching project:', err);
-                setError(err.message || 'Failed to load project');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (projectId && userId) {
-            fetchProject();
+        if (!response.ok) {
+            return null;
         }
-    }, [projectId, userId]);
 
-    // Loading state
-    if (loading) {
+        const data = await response.json();
+        return data.data.project;
+    } catch (error) {
+        console.error('Error fetching project:', error);
+        return null;
+    }
+}
+
+export default async function ProjectPage({ params }: ProjectPageProps) {
+    const { projectId } = params;
+    const project = await getProject(projectId);
+    if (!project) {
         return (
-            <div className="min-h-screen bg-gray-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <div className="animate-pulse">
-                        <div className="h-8 bg-gray-200 rounded w-64 mb-4"></div>
-                        <div className="h-12 bg-gray-200 rounded w-96 mb-8"></div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {[1, 2, 3, 4].map((i) => (
-                                <div key={i} className="bg-white rounded-lg p-6 border">
-                                    <div className="h-8 bg-gray-200 rounded w-32 mb-4"></div>
-                                    <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-                                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                                </div>
-                            ))}
+            <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 p-8">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex items-center justify-center min-h-[60vh]">
+                        <div className="text-center">
+                            <h1 className="text-2xl font-bold text-white mb-4">
+                                Project Not Found
+                            </h1>
+                            <p className="text-gray-400 mb-6">
+                                The project you're looking for doesn't exist or you don't have access to it.
+                            </p>
+                            <Link
+                                href="/dashboard"
+                                className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                            >
+                                Back to Dashboard
+                            </Link>
                         </div>
                     </div>
-                </div>
-            </div>
-        );
-    }
-
-    // Error state
-    if (error || !project) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="text-center max-w-md mx-auto px-4">
-                    <div className="text-red-600 mb-4">
-                        <svg className="h-16 w-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 18.5c-.77.833.192 2.5 1.732 2.5z" />
-                        </svg>
-                    </div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-4">
-                        {error?.includes('not found') ? 'Project Not Found' : 'Error Loading Project'}
-                    </h1>
-                    <p className="text-gray-600 mb-6">
-                        {error || 'The project you\'re looking for doesn\'t exist or you don\'t have access to it.'}
-                    </p>
-                    <Link
-                        href="/dashboard"
-                        className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 font-medium"
-                    >
-                        <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                        </svg>
-                        Back to Dashboard
-                    </Link>
                 </div>
             </div>
         );
@@ -161,48 +128,10 @@ export default function ProjectPage({ params }: ProjectPageProps) {
                     </div>
                 </div>
 
-                {/* Features Grid */}
+                {/* Keyword Research Tool */}
                 <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Available Tools</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {features.map((feature, index) => (
-                            <div
-                                key={index}
-                                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md hover:border-blue-300 transition-all duration-200 cursor-pointer group relative overflow-hidden"
-                            >
-                                {/* Coming Soon Badge */}
-                                {feature.status === 'coming_soon' && (
-                                    <div className="absolute top-4 right-4">
-                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                            Coming Soon
-                                        </span>
-                                    </div>
-                                )}
-
-                                <div className="flex items-start gap-4">
-                                    <div className="text-blue-600 group-hover:text-blue-700 transition-colors duration-200 flex-shrink-0">
-                                        {feature.icon}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">
-                                            {feature.title}
-                                        </h3>
-                                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                                            {feature.description}
-                                        </p>
-                                        <div className="flex items-center text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                            <span className="text-sm font-medium">
-                                                {feature.status === 'coming_soon' ? 'Notify me' : 'Launch tool'}
-                                            </span>
-                                            <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Keyword Research Tool</h2>
+                    <KeywordResearch projectId={projectId} initialSavedKeywords={project.savedKeywords || []} />
                 </div>
 
                 {/* Information Panel */}

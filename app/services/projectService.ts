@@ -85,3 +85,34 @@ export const getProjectById = async (projectId: string, userId: string) => {
         throw error;
     }
 };
+
+/**
+ * Add a keyword to a project
+ * @param {string} projectId - The project ID
+ * @param {string} userId - The user ID
+ * @param {Object} keywordData - The keyword data (keyword, competition, demand)
+ * @returns {Promise<Object>} The updated project data
+ */
+export const addKeywordToProject = async (projectId: string, userId: string, keywordData: { keyword: string; competition: number; demand: number }) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}/keywords`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-user-id': userId,
+            },
+            body: JSON.stringify(keywordData),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to add keyword to project');
+        }
+
+        return data.data;
+    } catch (error) {
+        console.error('Error adding keyword to project:', error);
+        throw error;
+    }
+};
